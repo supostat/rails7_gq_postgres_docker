@@ -1,0 +1,34 @@
+version: "3.9"
+
+volumes:
+  bundler_gems:
+  db_data:
+
+services:
+  app:
+    build: .
+    command: ./scripts/entrypoint.sh
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app
+      - bundler_gems:/usr/local/bundle/
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+      - redis
+  db:
+    image: postgres:14.1
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
